@@ -47,6 +47,10 @@ import { toast } from "sonner";
 const AdminPage = () => {
   const [menus, setMenu] = useState<IMenu[]>([]);
   const [createDialog, setCreateDialog] = useState(false);
+  const [selectedMenu, setSelectedMenu] = useState<{
+    menu: IMenu;
+    action: 'edit' | 'delete';
+  } | null>(null);
 
   useEffect(() => {
     const fetchMenu = async () => {
@@ -81,6 +85,24 @@ const AdminPage = () => {
           console.log("error:", error);
      }
   };
+
+const handleDeleteMenu = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("menus")
+        .delete()
+        .eq('id', selectedMenu?.menu.id);
+      
+      if (error) console.log('error:', error);
+      else {
+        setMenu( (prev) => prev.filter((menu ) => menu.id !== selectedMenu?.menu.id));
+        toast("Menu deleted successfully");
+        setSelectedMenu(null);
+    }
+    } catch (error) {
+          console.log("error:", error);
+     }
+  }
 
   return (
     <div className="container mx-auto py-8 ">
@@ -222,7 +244,7 @@ const AdminPage = () => {
                       <DropdownMenuSeparator />
                       <DropdownMenuGroup>
                         <DropdownMenuItem>Update</DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-400">
+                        <DropdownMenuItem className="text-red-400" onClick={() => setSelectedMenu({menu, action: 'delete'})}>
                           Delete
                         </DropdownMenuItem>
                       </DropdownMenuGroup>
@@ -234,7 +256,37 @@ const AdminPage = () => {
           </TableBody>
         </Table>
       </div>
+      <Dialog open={selectedMenu !== null && selectedMenu.action === "delete"} onOpenChange={(open) => {
+        if (!open) {
+          setSelectedMenu(null);
+        }
+      }}>
+        <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Delete Menu</DialogTitle>
+              <DialogDescription>
+              Are you sure you want to delete this {selectedMenu?.menu.name }?
+              </DialogDescription>
+            </DialogHeader>
+
+            <DialogFooter>
+              <DialogClose>
+                <Button variant="default" className="cursor-pointer">
+                  Cancel
+                </Button>
+              </DialogClose>
+            <Button
+              onClick={handleDeleteMenu}
+                variant="destructive"
+                className="cursor-pointer"
+              >
+                Delete
+              </Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
+
 export default AdminPage;
