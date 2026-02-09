@@ -1,6 +1,7 @@
 import { IMenu } from "@/types/menu";
 import { useEffect, useState } from "react";
 import supabase from "@/lib/db";
+import Link from "next/link";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -38,8 +39,13 @@ const Home = () => {
                 <p className="font-semibold text-2xl ">${menu.price}.00</p>
               </div>
             </CardContent>
+            <Link href={`/menu/${menu.id}`} className="w-full">
+              <Button className="w-full font-bold" size={"lg"}>
+                Detail Menu
+              </Button>
+            </Link> 
             <CardFooter>
-              <Button className="w-full font-bold" size="lg">Detail Menu</Button>
+              
             </CardFooter>
           </Card>
         ))}
